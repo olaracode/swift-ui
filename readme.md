@@ -1,6 +1,6 @@
 # Swift + SwiftUI
 
-This repository will contain all the projects I develop on my first sprint of Swift UI learning
+This repository will contain all the projects I develop while learning swift
 
 Index:
 
