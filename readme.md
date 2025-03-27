@@ -6,6 +6,7 @@ Index:
 
 - [UI Card](#ui-card)
 - [Cards War Game](#cards-war)
+- [Todo List](#todo-list)
 
 ## UI Card
 
@@ -20,3 +21,10 @@ A simple and classic Card ui, with an image, description and action buttons
 
 A Simple card game to learn the basics of state management on Swift
 ![Basic cards game preview](./docs/cards-war-preview.png)
+
+## Todo List
+
+> [Code](https://github.com/olaracode/swift-ui/tree/project/todo-list)
+
+A simple todo list to learn the basic of global state management + basic of navigations
+![Basic Todo List Demo](./docs/todo-demo.gif)
