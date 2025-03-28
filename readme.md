@@ -7,6 +7,7 @@ Index:
 - [UI Card](#ui-card)
 - [Cards War Game](#cards-war)
 - [Todo List](#todo-list)
+- [Gaming Navigation](#gaming-navigation)
 
 ## UI Card
 
@@ -24,7 +25,14 @@ A Simple card game to learn the basics of state management on Swift
 
 ## Todo List
 
-> [Code](https://github.com/olaracode/swift-ui/tree/project/todo-list)
+> [Code](https://github.com/olaracode/swift-ui/tree/navigation-stack?tab=readme-ov-file#navigation)
 
 A simple todo list to learn the basic of global state management + basic of navigations
 ![Basic Todo List Demo](./docs/todo-demo.gif)
+
+## Gaming Navigation
+
+> [Code](https://github.com/olaracode/swift-ui/tree/navigation-stack?tab=readme-ov-file#navigation)
+
+A simple stacked navigation example
+![Basic Navigation Demo](./docs/navigation-stack-preview.gif)
