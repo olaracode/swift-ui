@@ -23,8 +23,12 @@ struct ContentView: View {
         .init(name: "It takes two", rating: "80"),
         .init(name: "Space Marine", rating: "95"),
     ]
+    // To actually use stackable navigation
+    // meaning one path on top of another
+    // we need to declare a navigation path
+    @State private var path = NavigationPath()
     var body: some View {
-        NavigationStack{
+        NavigationStack(path: $path){
             List {
                 Section("Platforms") {
                     ForEach(platforms){ platform in
@@ -44,15 +48,10 @@ struct ContentView: View {
             }
             .navigationTitle("Gaming")
             .navigationDestination(for: Platform.self){ platform in
-                ZStack {
-                    platform.color.ignoresSafeArea()
-                    Label(platform.name, systemImage: platform.imageName)
-                        .font(.largeTitle).bold()
-                }
+                PlatformView(platform: platform, games: games)
             }
             .navigationDestination(for: Game.self){ game in
-                    Text("\(game.name) - \(game.rating)")
-                        .font(.largeTitle.bold())
+                GameView(game:game, platforms: platforms)
             }
         }
     }
