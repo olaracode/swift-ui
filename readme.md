@@ -8,6 +8,7 @@ Index:
 - [Cards War Game](#cards-war)
 - [Todo List](#todo-list)
 - [Gaming Navigation](#gaming-navigation)
+- [Expense Tracker SwiftData](#swift-data-expense-tracker)
 
 ## UI Card
 
@@ -36,3 +37,11 @@ A simple todo list to learn the basic of global state management + basic of navi
 
 A simple stacked navigation example
 ![Basic Navigation Demo](./docs/navigation-stack-preview.gif)
+
+## Swift Data Expense Tracker
+
+> [Code](https://github.com/olaracode/swift-ui/tree/navigation-stack?tab=readme-ov-file#navigation)
+
+A simple Expense Tracker project that uses SwiftData to understand data persistence
+
+![Basic Swift Data Expense Tracker](./docs/expense-tracker-swift-data-demo.gif)
