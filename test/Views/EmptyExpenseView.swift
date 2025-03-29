@@ -8,11 +8,21 @@
 import SwiftUI
 
 struct EmptyExpenseView: View {
+    let openExpenseSheet: () -> Void
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ContentUnavailableView(label: {
+            Label("No Expenses", systemImage: "list.bullet.rectangle.portrait")
+        }, description: {
+            Text("Start adding expenses to see your list")
+        }, actions: {
+            Button("Add Expense") {
+                openExpenseSheet()
+            }
+        })
+        .offset(y: -60)
     }
 }
 
 #Preview {
-    EmptyExpenseView()
+    EmptyExpenseView(openExpenseSheet: {})
 }

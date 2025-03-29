@@ -40,25 +40,20 @@ struct ContentView: View {
             .toolbar {
                 if !expenses.isEmpty {
                     Button("Add Expense", systemImage: "plus") {
-                        isShowingItemSheet = true
+                        openExpenseSheet()
                     }
                 }
             }
             .overlay {
                 if expenses.isEmpty {
-                    ContentUnavailableView(label: {
-                        Label("No Expenses", systemImage: "list.bullet.rectangle.portrait")
-                    }, description: {
-                        Text("Start adding expenses to see your list")
-                    }, actions: {
-                        Button("Add Expense") {
-                            isShowingItemSheet = true
-                        }
-                    })
-                    .offset(y: -60)
+                    EmptyExpenseView(openExpenseSheet: openExpenseSheet)
                 }
             }
         }
+    }
+    
+    func openExpenseSheet(){
+        isShowingItemSheet = true
     }
 }
 
