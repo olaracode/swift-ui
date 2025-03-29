@@ -1,38 +1,183 @@
-# Swift + SwiftUI
+# Swift Data Expense Tracker
 
-This repository will contain all the projects I develop while learning swift
+Basic expense tracker **CRUD** using SwiftData
 
-Index:
+> SwiftData is a SwiftUI library/package that allows us to store data in the devices memory
 
-- [UI Card](#ui-card)
-- [Cards War Game](#cards-war)
-- [Todo List](#todo-list)
-- [Gaming Navigation](#gaming-navigation)
+![Expense Tracker Preview](./docs/expense-tracker.gif)
 
-## UI Card
+## Swift Data:
 
-> [Code](https://github.com/olaracode/swift-ui/tree/ui/intro?tab=readme-ov-file#first-static-ui)
+The way SwiftData works is pretty similar to the way a database would work, you need to declare a DataStructure which works as a Model to consistently save data into the devise
 
-A simple and classic Card ui, with an image, description and action buttons
-![Simple UI card element](./docs/card-preview.png)
+### Model
 
-## Cards War
+To create a model you need to use an struct and use the `@Model` SwiftData utility to mark it as a model
 
-> [Code](https://github.com/olaracode/swift-ui/tree/project/war-card-game?tab=readme-ov-file#cars-war-game)
+> SwiftData allows you to mark attributes as unique, optional etc
 
-A Simple card game to learn the basics of state management on Swift
-![Basic cards game preview](./docs/cards-war-preview.png)
+```swift
+import Foundation
+import SwiftData // This is required
 
-## Todo List
+// To create a model use @Model right above your struct
+@Model
+struct SomeModel {
+    var property: TypeAnnotation
+    // @Attribute(.unique) enforces that a field is completely unique
+    @Attribute(.unique) var propertyTwo
+    init(...){
+        //...
+    }
+}
+```
 
-> [Code](https://github.com/olaracode/swift-ui/tree/navigation-stack?tab=readme-ov-file#navigation)
+### Injection
 
-A simple todo list to learn the basic of global state management + basic of navigations
-![Basic Todo List Demo](./docs/todo-demo.gif)
+To use a **SwiftData Model** you need to add it to the container and "inject" this container at entry point
 
-## Gaming Navigation
+```swift
+import SwiftUI
+import SwiftData
 
-> [Code](https://github.com/olaracode/swift-ui/tree/navigation-stack?tab=readme-ov-file#navigation)
+@main
+struct testApp: App {
+    // declarative container
+    let container: ModelContainer = {
+        let schema = Schema([Expense.self])
+        let config = ModelConfiguration()
+        let container = try! ModelContainer(for: schema, configurations: config)
+        return container
+    }()
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+        .modelContainer(container) // Add Container into app
+        /*
+            If you don't want all the bells and whistles you can simply do:
+                .modelContainer(for: [...])
+            to store multiple models on the container context
 
-A simple stacked navigation example
-![Basic Navigation Demo](./docs/navigation-stack-preview.gif)
+            to store a single model on your context you'd do:
+                .modelContainer(for: Expense.self)
+        */
+    }
+}
+```
+
+### READ
+
+To use the SwiftData context you need to declare it at the top of the View
+
+```swift
+import SwiftUI
+import SwiftData
+struct ContentView: View {
+    @Environment(\.modelContext) var context
+    // ...
+}
+```
+
+Then you can use it to make queries and see all the elements stored on the context
+
+```swift
+import SwiftUI
+import SwiftData
+struct ContentView: View {
+    @Environment(\.modelContext) var context
+
+    @Query var items: [Model]
+
+    // get the items sorted by date
+    @Query(sort: \Model.date) var sortedItems: [Model]
+}
+```
+
+### CREATE
+
+To insert data into a **SwiftData** Model you need to simply insert into the context.
+
+> `NOTE` SwiftData has autosave feature so unlike a database you don't need to textually save, adding something into the context or updating something on the context is enough to be saves automatically
+
+```swift
+struct AddItemView: View {
+    // Get the context
+    @Environment(\.modelContext) private var context
+
+    // Some example field to add into the model
+    @State private var name: String = ""
+    var body = some View {
+        // ...
+    }
+    func addItem(){
+        // First Create the new instance of the Model
+        let newItem = Model(name: name)
+
+        // Then insert into the context
+        context.insert(newItem)
+
+        // In case you don't trust the autosave:
+        // try! context.save()
+    }
+}
+```
+
+### UPDATE
+
+As mentiones on the `CREATE` the Context has autosave so you don't need to do a literal save, so updating is quire simple, you can receive the Item to update as an argument and you set it as bindable
+
+```swift
+import SwiftUI
+
+struct UpdateExpenseSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Bindable var item: Model
+    var body: some View {
+        NavigationStack {
+            Form {
+                // Just by updating this field the item is automatically saved on
+                // The memory
+                TextField("Name", text: $item.name)
+            }
+            .navigationTitle("Update Expense")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+### Delete
+
+To delete, similar to add you only need to do `context.delete(modelList[indexToDelete])`
+
+```swift
+import SwiftUI
+import SwiftData
+struct ContentView: View {
+    @Environment(\.modelContext) var context
+    @Query(sort: \Item.date) var items: [Item]
+
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(items) { item in
+                    ItemCell(item: item)
+                }
+                .onDelete { indexSet in
+                    for index in indexSet {
+                        context.delete(items[index])
+                    }
+                }
+            }
+        }
+    }
+}
+```
