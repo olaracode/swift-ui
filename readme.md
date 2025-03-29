@@ -41,13 +41,15 @@ A simple stacked navigation example
 
 ## Swift Data Expense Tracker
 
-> [Code](https://github.com/olaracode/swift-ui/tree/navigation-stack?tab=readme-ov-file#navigation)
+> [Code](https://github.com/olaracode/swift-ui/tree/swift-data/intro?tab=readme-ov-file#swift-data-expense-tracker)
 
 A simple Expense Tracker project that uses SwiftData to understand data persistence
 
 ![Basic Swift Data Expense Tracker](./docs/expense-tracker-swift-data-demo.gif)
 
 ## Github Api Profile Demo
+
+> [Code](https://github.com/olaracode/swift-ui/tree/api/github-profile?tab=readme-ov-file#github-profile-demo)
 
 A simple App that fetches the data of a github api user profile and displays it. Used SwiftData to create a basic cache system
 
