@@ -9,6 +9,7 @@ Index:
 - [Todo List](#todo-list)
 - [Gaming Navigation](#gaming-navigation)
 - [Expense Tracker SwiftData](#swift-data-expense-tracker)
+- [Github Api Profile Demo](#github-api-profile-demo)
 
 ## UI Card
 
@@ -45,3 +46,9 @@ A simple stacked navigation example
 A simple Expense Tracker project that uses SwiftData to understand data persistence
 
 ![Basic Swift Data Expense Tracker](./docs/expense-tracker-swift-data-demo.gif)
+
+## Github Api Profile Demo
+
+A simple App that fetches the data of a github api user profile and displays it. Used SwiftData to create a basic cache system
+
+![Basic Github Api Profile](./docs/github-profile-demo.png)
