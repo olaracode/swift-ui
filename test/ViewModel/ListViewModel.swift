@@ -9,43 +9,45 @@ import Foundation
 
 class ListViewModel: ObservableObject {
     @Published var items: [ItemModel] = [];
+        
     
-    init(){
-        getItems()
-    }
-    
-    func getItems(){
-        let newItems =  [
-            ItemModel(title: "First Todo", isCompleted: false),
-            ItemModel(title: "Second Todo", isCompleted: true),
-            ItemModel(title: "Third Todo", isCompleted: true)
-        ]
-        items.append(contentsOf: newItems)
+    // async functions
+    func getItems() async throws {
+        let apiPosts: [ItemModel] = try await api.getData(endpoint: "/todos")
+        DispatchQueue.main.async {
+            self.setItems(newItems: apiPosts)
+        }
         
     }
     
-    func deleteItem(indexSet: IndexSet) {
-        items.remove(atOffsets: indexSet)
-    }
-    
-    func moveItem(from: IndexSet, to: Int){
-        items.move(fromOffsets: from, toOffset: to)
-    }
-    
-    func addItem(title: String) {
-        let newItem = ItemModel(title: title, isCompleted: false)
-        items.append(newItem)
-    }
-    
-    func updateItem(item: ItemModel){
-//        if let index = items.firstIndex { (existingItem) -> Bool in
-//            return existingItem.id == item.id
-//        } {
-//            // run this code
-//        }
+    func postTodo(title: String) async throws {
+        let newTodo = ItemModel(title: title, isCompleted: false)
         
-        if let index = items.firstIndex(where: {$0.id == item.id }){
-            items[index] = item.updateCompletion()
+        let createdTodo: ItemModel = try await api.postData(endpoint: "/todos", payload: newTodo)
+        
+        DispatchQueue.main.async {
+            self.items.append(createdTodo)
+        }
+    }
+    
+    func deleteTodo(at offsets: IndexSet) async throws {
+        for index in offsets {
+            let todo = items[index] // get the todo item
+            let endpoint = "/todos/\(todo.id)"
+            try await api.deleteData(endpoint: endpoint)
+            DispatchQueue.main.async {
+                self.items.remove(at: index)
+            }
+        }
+    }
+    func updateTodo(todo: ItemModel) async throws {
+        let endpoint = "/todos/\(todo.id)"
+        let _ = try await api.putData(endpoint: endpoint, payload: todo.updateCompletion())
+    }
+    // Local functions
+    func setItems(newItems: [ItemModel]) {
+        DispatchQueue.main.async {
+            self.items.append(contentsOf: newItems)
         }
     }
 }
