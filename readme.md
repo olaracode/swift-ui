@@ -1,203 +1,272 @@
-# Todo List
+# Todo List API
 
-A Simple todo list with two Views, list + creation
-**Index**
+> [Created from](https://github.com/olaracode/swift-ui/tree/project/todo-list?tab=readme-ov-file#todo-list)
 
-- [MVVM](#model-view-viewmodel)
-- [Global State](#global-state-management)
-- [Alerts](#alerts)
+A continuation of the basic todo list but integrating a basic API to learn about async.
 
-## Functionalities
+![API Todo list demo](./docs/api-todo-demo.gif)
 
-### Add
+## API class
 
-![Todo Add demo](./docs/add-demo.gif)
+> Is this the best approach? 🤔
 
-### Remove
+To handle all the API requests, I created an `Api` class that handles the basic REST operations.
 
-![Remove Todo Demo](./docs/remove-demo.gif)
+### Features
 
-### Toggle
+The `Api` class provides the following functionalities:
 
-![Toggle Todo Status Demo](./docs/toggle-demo.gif)
+- **GET**: Fetch data from the server.
+- **POST**: Send data to the server.
+- **PUT**: Update data on the server.
+- **DELETE**: Remove data from the server.
 
-### Reorder
+### Implementation Breakdown
 
-![Reorder Todos Demo](./docs/reorder-demo.gif)
+#### Initialization
 
-## Model View ViewModel
-
-For this project the MVVM architecture was used to split the code
-
-- View: Everything related to the visuals of the application
-- Model: Everything related to the Data Structure used
-- ModelView: Everything related to interactions between Modal and view
-
-## Global state management
-
-Managing Global Stage requires a couple of steps in order to comply with MVVM
-
-1. [Model](#model)
-2. [ViewModel](#viewmodel)
-3. [Declaration and injection](#declaration--injection)
-4. [View](#view)
-
-### Model
-
-The first step to handle the global state is to create the Model, our model will be a `struct` that _shapes_ our todo items
+The `Api` class is initialized with a `baseUrl` that serves as the root for all API requests:
 
 ```swift
-import Foundation
-// Immutable Struct
-// Identifiable is required for the Iteration ForEach
-struct ItemModel: Identifiable {
-    let id: String
+class Api {
+    let baseUrl: String
+
+    init(baseUrl: String) {
+        self.baseUrl = baseUrl
+    }
+}
+```
+
+#### URL Construction
+
+The `getUrl` method constructs a full URL by appending the endpoint to the `baseUrl`. It throws an error if the URL is invalid:
+
+```swift
+func getUrl(endpoint: String) throws -> URL {
+    guard let url = URL(string: baseUrl + endpoint) else {
+        throw ApiError.invalidUrl
+    }
+    return url
+}
+```
+
+#### Response Handling
+
+The `processResponse` method ensures the HTTP response is valid and checks for errors based on the status code:
+
+```swift
+func processResponse(response: URLResponse) throws {
+    guard let httpResponse = response as? HTTPURLResponse else {
+        throw ApiError.invalidResponse
+    }
+    guard (200...299).contains(httpResponse.statusCode) else {
+        return try processError(statusCode: httpResponse.statusCode)
+    }
+}
+
+func processError(statusCode: Int) throws {
+    switch statusCode {
+    case 400:
+        throw ApiError.badRequest
+    case 404:
+        throw ApiError.notFound
+    default:
+        throw ApiError.serverError
+    }
+}
+```
+
+#### JSON Decoding
+
+The `jsonDecoder` method decodes JSON data into a specified `Codable` type:
+
+```swift
+func jsonDecoder<T: Codable>(data: Data) throws -> T {
+    let decoder = JSONDecoder()
+    decoder.keyDecodingStrategy = .convertFromSnakeCase
+    return try decoder.decode(T.self, from: data)
+}
+```
+
+#### HTTP Methods
+
+- **GET**: Fetch data from the server:
+
+  ```swift
+  func getData<T: Codable>(endpoint: String) async throws -> T {
+      let url = try getUrl(endpoint: endpoint)
+      let (data, response) = try await URLSession.shared.data(from: url)
+      try processResponse(response: response)
+      return try jsonDecoder(data: data)
+  }
+  ```
+
+- **POST**: Send data to the server:
+
+  ```swift
+  func postData<T: Codable, U: Codable>(endpoint: String, payload: T) async throws -> U {
+      let url = try getUrl(endpoint: endpoint)
+      let request = try createRequest(url: url, payload: payload)
+      let (data, response) = try await URLSession.shared.data(for: request)
+      try processResponse(response: response)
+      return try jsonDecoder(data: data)
+  }
+  ```
+
+- **PUT**: Update data on the server:
+
+  ```swift
+  func putData<T: Codable>(endpoint: String, payload: T) async throws -> T {
+      let url = try getUrl(endpoint: endpoint)
+      let request = try createRequest(url: url, payload: payload, method: "PUT")
+      let (data, response) = try await URLSession.shared.data(for: request)
+      try processResponse(response: response)
+      return try jsonDecoder(data: data)
+  }
+  ```
+
+- **DELETE**: Remove data from the server:
+  ```swift
+  func deleteData(endpoint: String) async throws {
+      let url = try getUrl(endpoint: endpoint)
+      var request = URLRequest(url: url)
+      request.httpMethod = "DELETE"
+      let (_, response) = try await URLSession.shared.data(for: request)
+      try processResponse(response: response)
+  }
+  ```
+
+#### Request Creation
+
+The `createRequest` method creates a `URLRequest` with the specified payload and HTTP method:
+
+```swift
+func createRequest<T: Codable>(url: URL, payload: T, method: String = "POST") throws -> URLRequest {
+    var request = URLRequest(url: url)
+    request.httpMethod = method
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    request.httpBody = try JSONEncoder().encode(payload)
+    return request
+}
+```
+
+#### Error Handling
+
+The `ApiError` enum defines possible errors that can occur during API operations:
+
+```swift
+enum ApiError: Error {
+    case invalidUrl
+    case serverError
+    case invalidResponse
+    case invalidData
+    case badRequest
+    case notFound
+}
+```
+
+### Usage
+
+#### Initialization
+
+To use the `Api` class, initialize it with a base URL:
+
+```swift
+let api = Api(baseUrl: "http://localhost:8080")
+```
+
+#### GET Request
+
+Fetch data from an endpoint:
+
+```swift
+struct Todo: Codable {
+    let id: Int
     let title: String
-    let isCompleted: Bool
+    let completed: Bool
+}
 
-    // Initialization override
-    init(title: String, isCompleted: Bool, id: String = UUID().uuidString){
-        self.id = id
-        self.title = title
-        self.isCompleted = isCompleted
-    }
-
-    // returns a newly created ItemModel
-    // with the inverted isCompleted
-    func updateCompletion() -> ItemModel {
-        return ItemModel(
-            title: self.title,
-            isCompleted: !self.isCompleted,
-            id: self.id
-        )
+Task {
+    do {
+        let todos: [Todo] = try await api.getData(endpoint: "/todos")
+        print(todos)
+    } catch {
+        print("Error fetching data:", error)
     }
 }
 ```
 
-### ViewModel
+#### POST Request
 
-This Model is then managed by the ViewModel:
+Send data to an endpoint:
 
 ```swift
-import Foundation
+struct NewTodo: Codable {
+    let title: String
+    let completed: Bool
+}
 
-class ListViewModel: ObservableObject {
-    @Published var items: [ItemModel] = [];
-
-    init(){
-        getItems()
-    }
-
-    func getItems(){
-        let newItems =  [
-            ItemModel(title: "First Todo", isCompleted: false),
-            ItemModel(title: "Second Todo", isCompleted: true),
-            ItemModel(title: "Third Todo", isCompleted: true)
-        ]
-        items.append(contentsOf: newItems)
-
-    }
-
-    func deleteItem(indexSet: IndexSet) {
-        items.remove(atOffsets: indexSet)
-    }
-
-    func moveItem(from: IndexSet, to: Int){
-        items.move(fromOffsets: from, toOffset: to)
-    }
-
-    func addItem(title: String) {
-        let newItem = ItemModel(title: title, isCompleted: false)
-        items.append(newItem)
-    }
-
-    func updateItem(item: ItemModel){
-//        if let index = items.firstIndex { (existingItem) -> Bool in
-//            return existingItem.id == item.id
-//        } {
-//            // run this code
-//        }
-
-        if let index = items.firstIndex(where: {$0.id == item.id }){
-            items[index] = item.updateCompletion()
-        }
+Task {
+    do {
+        let newTodo = NewTodo(title: "Learn Swift", completed: false)
+        let createdTodo: Todo = try await api.postData(endpoint: "/todos", payload: newTodo)
+        print(createdTodo)
+    } catch {
+        print("Error posting data:", error)
     }
 }
 ```
 
-### Declaration & Injection
+#### PUT Request
 
-After creating the ViewModel to manage the Model from the Views, we need to inject the ListViewModel into the application, to do this we need two steps:
-
-1. Creating the StateObject with `@StateObject var fizz`
+Update data on an endpoint:
 
 ```swift
-@StateObject var listViewModel: ListViewModel = ListViewModel()
+Task {
+    do {
+        let updatedTodo = Todo(id: 1, title: "Learn SwiftUI", completed: true)
+        let result: Todo = try await api.putData(endpoint: "/todos/1", payload: updatedTodo)
+        print(result)
+    } catch {
+        print("Error updating data:", error)
+    }
+}
 ```
 
-2. Injecting this StateObject into the application with `.environmentObject` modifier
+#### DELETE Request
+
+Delete data from an endpoint:
 
 ```swift
- .environmentObject(listViewModel)
+Task {
+    do {
+        try await api.deleteData(endpoint: "/todos/1")
+        print("Todo deleted successfully")
+    } catch {
+        print("Error deleting data:", error)
+    }
+}
 ```
+
+### Error Handling
+
+The `Api` class uses the `ApiError` enum to handle errors:
+
+- `invalidUrl`: The URL is malformed.
+- `serverError`: The server returned an error.
+- `invalidResponse`: The response is not valid.
+- `invalidData`: The data could not be decoded.
+- `badRequest`: The request was invalid (400).
+- `notFound`: The resource was not found (404).
 
 Example:
 
 ```swift
-@main
-struct testApp: App {
-    // Declare the state object
-    @StateObject var listViewModel: ListViewModel = ListViewModel()
-
-    var body: some Scene {
-        WindowGroup {
-            NavigationView {
-                ListView()
-            }
-            // set it as environment to provide to all the elements
-            .environmentObject(listViewModel)
-        }
-    }
-}
-```
-
-### View
-
-To consume this EnvironmentObject we simply need to call the State on the View we want
-
-```swift
-struct ListView: View {
-    // Obtain Object from the environment
-    @EnvironmentObject var listViewModel: ListViewModel
-    // ....
-}
-```
-
-## Alerts
-
-> Swift Alerts ressemble HTML alerts
-
-To handle alerts for this project we created two states, one to handle the boolean state to show the alert and one to store the error message
-
-```swift
-// Set the state variables
-@State var alertTitle: String = ""
-@State var showAlert: Bool = false
-
-ScrollView {
-    // ...Content
-} // set the alert modifier
-.alert(isPresented: $showAlert, content: getAlert)
-
-// generate the alert element
-func getAlert() -> Alert{
-    return Alert(title: Text(alertTitle))
-}
-
-// usage
-func something(){
-    // some logic
-    alertTitle = "There has been some error"
-    showAlert = true
+do {
+    let todos: [Todo] = try await api.getData(endpoint: "/todos")
+} catch ApiError.notFound {
+    print("Resource not found")
+} catch {
+    print("An unexpected error occurred:", error)
 }
 ```
