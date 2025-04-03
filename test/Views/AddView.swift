@@ -16,7 +16,7 @@ struct AddView: View {
     
     // local state
     @State var textFieldText: String = ""
-    
+    @State var loading = false
     @State var alertTitle: String = ""
     @State var showAlert: Bool = false
     var body: some View {
@@ -28,14 +28,33 @@ struct AddView: View {
                     .background(Color(#colorLiteral(red: 0.921431005, green: 0.9214526415, blue: 0.9214410186, alpha: 1)))
                     .cornerRadius(10)
                 
-                Button(action: saveButtonPress, label: {
-                    Text("Save".uppercased())
-                        .foregroundColor(.white)
-                        .font(.headline)
-                        .frame(height: 55)
-                        .frame(maxWidth: .infinity)
-                        .background(Color.accentColor)
-                        .cornerRadius(10)
+                Button(action: {
+                    Task {
+                        do {
+                            print("Something")
+                            try await saveButtonPress()
+                            
+                        }
+                        catch {
+                            print("Some error")
+                        }
+                       
+                    }
+                }, label: {
+                    ZStack {
+                        if loading {
+                               ProgressView() // Spinner
+                                   .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                       } else {
+                           Text("Save".uppercased())
+                               .foregroundColor(.white)
+                               .font(.headline)
+                       }
+                   }
+                    .frame(height: 55)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.accentColor)
+                    .cornerRadius(10)
                     
                 })
             }
@@ -44,11 +63,23 @@ struct AddView: View {
         .navigationTitle("Add an item 🖊️")
         .alert(isPresented: $showAlert, content: getAlert)
     }
-    func saveButtonPress(){
+    func saveButtonPress()async throws {
         if(validateText()){
-            listViewModel.addItem(title: textFieldText)
-            presentationMode.wrappedValue.dismiss()
-            return
+            loading = true
+            do {
+                try await listViewModel.postTodo(title: textFieldText)
+                presentationMode.wrappedValue.dismiss()
+                return
+            }
+            catch ApiError.badRequest {
+                alertTitle = "Todo couldn't be created. Please try again later 😕(bad request)"
+                showAlert.toggle()
+            }
+            catch {
+                print("Some error")
+            }
+            loading = false
+           
         }
         
         
