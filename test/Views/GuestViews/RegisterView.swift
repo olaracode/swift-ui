@@ -9,7 +9,9 @@ import SwiftUI
 
 struct RegisterView: View {
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var auth: AuthManager
     let toggleLogin: () -> Void
+    @State var errorMsg: ErrorMessage = .init()
     @State var email: String = ""
     @State var name: String = ""
     @State var password: String = ""
@@ -19,7 +21,7 @@ struct RegisterView: View {
 
             // Login Form
             VStack(spacing: 15) {
-                Text("Welcome to Plaint")
+                Text("Start today")
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.green)
@@ -44,7 +46,10 @@ struct RegisterView: View {
 
                 
                 Button(action: {
-                    // Login action
+                    Task {
+                        await handleRegister()
+                    }
+                   
                 }) {
                     Text("Register")
                         .font(.headline)
@@ -68,6 +73,29 @@ struct RegisterView: View {
                 .foregroundColor(.green)
             }
             .padding(.bottom)
+        }
+        .toast(isPresented: $errorMsg.isShowing, message: errorMsg.message ?? "")
+    }
+
+    func handleRegister() async {
+        errorMsg.clear()
+        if email.isEmpty || password.isEmpty {
+            errorMsg.show(msg: "All field are required")
+            return
+        }
+        do {
+            let body = RegisterBody(email: email, password: password, name: name)
+            let response = try await AuthApi.register(body: body)
+            auth.login(
+                withToken: response.token,
+                user: User(
+                    email: response.email,
+                    name: response.name,
+                    id: response._id
+                )
+            )
+        }catch {
+            errorMsg.show(msg: "All fields are required")
         }
     }
 }

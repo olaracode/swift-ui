@@ -6,19 +6,29 @@
 //
 
 import SwiftUI
-
+import SwiftData
 struct ContentView: View {
+    @EnvironmentObject var auth: AuthManager
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        Group{
+            if !auth.isAuthenticated {
+                InitialView()
+            } else {
+                MainUserView()
+            }
         }
-        .padding()
+        .onAppear {
+            Task {
+                if let _ = auth.token {
+                    await auth.fetchUser()
+                }
+            }
+        }
     }
 }
 
+
 #Preview {
     ContentView()
+        .environmentObject(AuthManager())
 }

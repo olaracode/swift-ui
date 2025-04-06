@@ -7,11 +7,9 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct LoginView: View {
     @Environment(\.dismiss) var dismiss
-    @Environment(\.modelContext) var context
+    @EnvironmentObject var auth: AuthManager
     
     let toggleRegister: () -> Void // Prop
     
@@ -21,10 +19,10 @@ struct LoginView: View {
     @State var reqError = ErrorMessage()
     
     var body: some View {
-        VStack {
+        VStack() {
 
             // Login Form
-            VStack(spacing: 15) {
+            VStack(alignment: .leading, spacing: 15) {
                 Text("Welcome Back")
                     .font(.title)
                     .fontWeight(.bold)
@@ -34,7 +32,7 @@ struct LoginView: View {
                     .foregroundColor(.gray)
                     .font(.subheadline)
 
-                TextField("Full Name", text: $email)
+                TextField("Email Address", text: $email)
                     .padding()
                     .background(Color.green.opacity(0.1))
                     .cornerRadius(10)
@@ -45,16 +43,11 @@ struct LoginView: View {
                     .cornerRadius(10)
 
                 VStack(alignment: .leading) {
-                    Toggle("Remember Me", isOn: $rememberMe)
-    
                     Text("Forgot Password?")
                         .foregroundColor(.green)
                         .font(.footnote)
                 }
-                if reqError.isShowing {
-                    Text(reqError.message ?? "")
-                        .opacity(reqError.isShowing ? 1 : 0)
-                }
+              
                 Button(action: {
                     Task {
                         await login()
@@ -75,7 +68,7 @@ struct LoginView: View {
 
             
             
-            HStack {
+            HStack(alignment: .center) {
                 Text("Don't have an account?")
                 Button("Sign up") {
                     toggleRegister()
@@ -84,37 +77,43 @@ struct LoginView: View {
             }
             .padding(.bottom)
         }
+        .toast(isPresented: $reqError.isShowing, message: reqError.message ?? "")
     }
     func login() async {
+        reqError.clear()
         if(email.isEmpty || password.isEmpty) {
             print("Handle errors correctly")
             return
         }
         
         do {
-            let userBody = LoginBody(email: email, password: password)
-            let newUser = try await AuthViewModel().login(loginBody: userBody)
-            context.insert(newUser)
+            let body = LoginBody(email: email, password: password)
+            let response = try await AuthApi.login(loginBody: body)
+            
+            auth.login(
+                withToken: response.token,
+                user: User(
+                    email: response.email,
+                    name: response.name,
+                    id: response._id
+                )
+            )
+            
         }
         catch AuthRequestError.invalidEmailOrPassword {
-            reqError.isShowing = true
-            reqError.message = "Invalid email or password"
+            reqError.show(msg: "Incorrect email or password")
+        }
+        catch ApiError.serverError {
+            reqError.show(msg: "Server Error")
         }
         catch {
+            reqError.show(msg: "Unknown error")
             print("Handle errors correctly")
         }
     }
 }
 
-struct ErrorMessage {
-    var isShowing: Bool
-    var message: String?
-    
-    init(){
-        self.isShowing = false
-        self.message = nil
-    }
-}
+
 #Preview {
     LoginView(toggleRegister: {})
 }

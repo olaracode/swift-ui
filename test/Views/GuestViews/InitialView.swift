@@ -17,16 +17,16 @@ struct InitialView: View {
 
             VStack(alignment: .leading) {
                 if activeSheet == nil {
-                    Text("Welcome to your AI Gardening Assistant")
-                        .font(.system(size: 42, weight: .bold))
+                    Text("Welcome to \(AppMetadata.title), your AI Gardening Assistant")
+                        .font(.system(size: 38, weight: .bold))
                         .foregroundColor(.white)
                         .bold()
                         .multilineTextAlignment(.leading)
                         .transition(.blurReplace)
 
                 } else {
-                    Text("Welcome to Plaint")
-                        .font(.system(size: 42, weight: .bold))
+                    Text("Welcome to \(AppMetadata.title)")
+                        .font(.system(size: 38, weight: .bold))
                         .foregroundColor(.white)
                         .bold()
                         .multilineTextAlignment(.leading)
