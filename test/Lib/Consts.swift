@@ -6,3 +6,12 @@
 //
 
 import Foundation
+
+struct AppMetadata {
+    static let title = "Botania"
+    static let logo = "some-logo"
+}
+
+//struct GuestViewContent {
+//    static let 
+//}
