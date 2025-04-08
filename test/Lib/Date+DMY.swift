@@ -6,3 +6,11 @@
 //
 
 import Foundation
+
+extension Date{
+    func formattedAsDMY() -> String {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "dd - MM - yy" // ⚠️ lowercase `dd` and `yy`
+            return formatter.string(from: self)
+    }
+}

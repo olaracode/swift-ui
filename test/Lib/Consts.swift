@@ -12,6 +12,4 @@ struct AppMetadata {
     static let logo = "some-logo"
 }
 
-//struct GuestViewContent {
-//    static let 
-//}
+
