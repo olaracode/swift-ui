@@ -88,7 +88,7 @@ struct LoginView: View {
         
         do {
             let body = LoginBody(email: email, password: password)
-            let response = try await AuthApi.login(loginBody: body)
+            let response = try await Api.login(loginBody: body)
             
             auth.login(
                 withToken: response.token,
@@ -98,6 +98,7 @@ struct LoginView: View {
                     id: response._id
                 )
             )
+            dismiss()
             
         }
         catch AuthRequestError.invalidEmailOrPassword {

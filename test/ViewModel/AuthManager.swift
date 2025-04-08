@@ -34,10 +34,15 @@ class AuthManager: ObservableObject {
         guard let token = token else { return }
         print(token)
         do {
-            let user = try await AuthApi.getUser(token: token)
+            let user = try await Api.getUser(token: token)
             print(user)
-            self.user = User(email: user.email, name: user.name, id: user._id)
-            self.isAuthenticated = true
+            DispatchQueue.main.async {
+                self.user = User(email: user.email, name: user.name, id: user._id)
+                self.isAuthenticated = true
+            }
+
+//            self.user = User(email: user.email, name: user.name, id: user._id)
+//            self.isAuthenticated = true
         } catch {
             print("Failed to fetch", error)
         }

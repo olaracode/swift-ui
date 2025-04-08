@@ -8,8 +8,22 @@
 import SwiftUI
 
 struct MainUserView: View {
+    @EnvironmentObject var auth: AuthManager
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        TabView {
+            HomeView()
+                .tabItem {
+                    Label("Plants", systemImage: "leaf")
+                }
+             
+            
+            
+
+            ProfileView()
+                .tabItem {
+                    Label("Profile", systemImage: "person")
+                }
+        }
     }
 }
 
