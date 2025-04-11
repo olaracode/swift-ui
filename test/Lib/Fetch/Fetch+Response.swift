@@ -34,6 +34,7 @@ extension Fetch {
     func jsonDecoder<T: Codable>(data: Data) throws -> T{
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return try decoder.decode(T.self, from: data)
+        let decodedJSON = try decoder.decode(T.self, from: data)
+        return decodedJSON
     }
 }
