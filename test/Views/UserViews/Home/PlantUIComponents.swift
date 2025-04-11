@@ -7,12 +7,31 @@
 
 import SwiftUI
 
-struct PlantUIComponents: View {
+struct AttributeView: View {
+    let label: String
+    let value: String
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        HStack {
+            Text(label + ":")
+                .fontWeight(.semibold)
+            Spacer()
+            Text(value)
+                .foregroundColor(.secondary)
+        }
     }
 }
 
-#Preview {
-    PlantUIComponents()
+struct PlantStatusBadge: View {
+    let status: PlantStatus
+    
+    var body: some View {
+        Text(status.label)
+            .font(.caption)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(status.color.opacity(0.8))
+            .foregroundColor(.white)
+            .cornerRadius(8)
+    }
 }
