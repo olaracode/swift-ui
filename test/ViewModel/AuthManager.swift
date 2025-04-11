@@ -11,7 +11,7 @@ import KeychainAccess
 class AuthManager: ObservableObject {
     @Published var isAuthenticated: Bool = false
     @Published var user: User? = nil
-
+    @Published var isLoading: Bool = false
     private let keychain = Keychain(service: "com.yourapp.token")
 
     var token: String? {
@@ -30,6 +30,12 @@ class AuthManager: ObservableObject {
         self.isAuthenticated = false
     }
 
+    func load(_ isLoading: Bool = true){
+        DispatchQueue.main.async {
+            self.isLoading = isLoading
+
+        }
+    }
     func fetchUser() async {
         guard let token = token else { return }
         print(token)
@@ -39,12 +45,14 @@ class AuthManager: ObservableObject {
             DispatchQueue.main.async {
                 self.user = User(email: user.email, name: user.name, id: user._id)
                 self.isAuthenticated = true
+                self.load(false)
             }
 
 //            self.user = User(email: user.email, name: user.name, id: user._id)
 //            self.isAuthenticated = true
         } catch {
             print("Failed to fetch", error)
+            self.load(false)
         }
                 // Example API call to get user data
        
