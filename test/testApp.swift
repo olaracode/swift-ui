@@ -10,10 +10,12 @@ import SwiftData
 @main
 struct testApp: App {
     @StateObject var authManager = AuthManager()
+    @StateObject var plantsManager = PlantManager()
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(authManager)
+                .environmentObject(plantsManager)
         }
 
     }
