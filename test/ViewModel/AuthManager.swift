@@ -51,8 +51,9 @@ class AuthManager: ObservableObject {
 //            self.user = User(email: user.email, name: user.name, id: user._id)
 //            self.isAuthenticated = true
         } catch {
-            print("Failed to fetch", error)
+          DispatchQueue.main.async {
             self.load(false)
+          }
         }
                 // Example API call to get user data
        
