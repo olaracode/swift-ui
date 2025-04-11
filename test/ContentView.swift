@@ -11,15 +11,22 @@ struct ContentView: View {
     @EnvironmentObject var auth: AuthManager
     var body: some View {
         Group{
-            if !auth.isAuthenticated {
-                InitialView()
+            if(!auth.isLoading){
+                
+            
+                if !auth.isAuthenticated {
+                    InitialView()
+                } else {
+                    MainUserView()
+                }
             } else {
-                MainUserView()
+                Text("...Loading")
             }
         }
         .onAppear {
             Task {
                 if let _ = auth.token {
+                    auth.load()
                     await auth.fetchUser()
                 }
             }
@@ -31,4 +38,5 @@ struct ContentView: View {
 #Preview {
     ContentView()
         .environmentObject(AuthManager())
+        .environmentObject(PlantManager())
 }
