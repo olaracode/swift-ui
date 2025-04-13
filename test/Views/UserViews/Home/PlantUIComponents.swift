@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+
+
+
+
 struct AttributeView: View {
     let label: String
     let value: String
@@ -26,12 +30,23 @@ struct PlantStatusBadge: View {
     let status: PlantStatus
     
     var body: some View {
-        Text(status.label)
-            .font(.caption)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(status.color.opacity(0.8))
-            .foregroundColor(.white)
-            .cornerRadius(8)
+        ZStack {
+            HStack {
+                Circle()
+                    .frame(width: 12, height: 12)
+                    .foregroundColor(status.color)
+                Text(status.label) // or "Need watering"
+                    .font(.caption)
+                    .foregroundColor(.white)
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 4)
+        .background(Color.black.opacity(0.4))
+        .clipShape(Capsule())
+        .padding(8)
+        .bold()
     }
 }
+
+
