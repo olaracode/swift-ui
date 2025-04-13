@@ -12,6 +12,9 @@ struct AddPlantView: View {
     @State private var weatherType: WeatherType = .humid
     @State private var status: PlantStatus = .healthy
     @State private var lastWatered: Date = Date()
+    @State private var wateringIntervalHours: Int = 24
+    
+    
     let lightLevels = ["Low", "Medium", "High"]
     
     var body: some View {
@@ -44,6 +47,16 @@ struct AddPlantView: View {
                             }
                         }
                         DatePicker("Last watered", selection: $lastWatered)
+//                        Stepper(
+//                            "Water every \(wateringIntervalHours) hour(s)",
+//                            value: $wateringIntervalHours,
+//                            in: 1...168
+//                        )
+                        Picker("Water every...", selection: $wateringIntervalHours){
+                            ForEach(1...168, id: \.self) {value in
+                                Text("\(value) hour\(value > 1 ? "s" : "")")
+                            }
+                        }
                     }
 
                     Section {
@@ -77,7 +90,8 @@ struct AddPlantView: View {
             light: lightLevel,
             status: status.label,
             location: location.label,
-            lastWatered: lastWatered.description
+            lastWatered: lastWatered.description,
+            wateringIntervalHours: wateringIntervalHours
         )
         if let token = auth.token {
             try await plants.addPlant(payload: newPlant, token: token)
