@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MainUserView: View {
     @EnvironmentObject var auth: AuthManager
-    @EnvironmentObject var plant: PlantManagerc
+    @EnvironmentObject var plant: PlantManager
     var body: some View {
         TabView {
             HomeView()
