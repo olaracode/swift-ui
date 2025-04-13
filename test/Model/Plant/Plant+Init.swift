@@ -16,7 +16,7 @@ extension PlantModel {
 
         self.id = response._id
         self.name = response.name
-        
+        self.wateringIntervalHours = response.wateringIntervalHours
         self.light = response.light
        
         /// Creates a relative date from a Stringified Date
@@ -28,6 +28,13 @@ extension PlantModel {
             self.lastWatered = relativeFormatter.localizedString(for: date, relativeTo: Date())
         } else {
             self.lastWatered = nil
+        }
+        
+        /// Creates the nextWatering date from the ISO String the api returns
+        if let date = formatter.date(from: response.nextWatering){
+            self.nextWatering = date
+        } else {
+            self.nextWatering = nil
         }
         
         /// Enums

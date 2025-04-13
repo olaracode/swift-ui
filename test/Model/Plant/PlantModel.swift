@@ -15,6 +15,8 @@ struct PlantModel: Identifiable, Hashable, Codable {
     let status: PlantStatus
     let location: PlantLocation
     let lastWatered: String?
+    let nextWatering: Date?
+    let wateringIntervalHours: Int
     let user: String
 }
 

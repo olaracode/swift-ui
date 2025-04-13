@@ -44,6 +44,8 @@ struct PlantResponse: Codable {
     let location: String
     let lastWatered: String
     let user: String
+    let nextWatering: String
+    let wateringIntervalHours: Int
 }
 
 struct PlantBody: Codable {
@@ -53,4 +55,5 @@ struct PlantBody: Codable {
     let status: String
     let location: String
     let lastWatered: String
+    let wateringIntervalHours: Int
 }
