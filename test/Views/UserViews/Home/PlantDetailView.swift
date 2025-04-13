@@ -7,78 +7,60 @@
 
 import SwiftUI
 
-struct PlantDetailsView: View {
+struct PlantDetailView: View {
     let plant: PlantModel
     let namespace: Namespace.ID
-    @State var isVisible = false
+    let discard: () -> Void
     var body: some View {
-            NavigationView{
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        // Plant Image
-                        Image("plant-pot") // Replace with your image logic
-                            .resizable()
-                            .scaledToFill()
-                            .matchedGeometryEffect(id: plant.id + "-image", in: namespace)
-                            .frame(height: 250)
-                            .clipped()
-                            .overlay(
-                                HStack {
-                                    Spacer()
-                                    VStack {
-                                        PlantStatusBadge(status: plant.status)
-                                        Spacer()
-                                    }
-                                }
-                                .padding()
-                            )
-                        
-                        // Plant Name
-                        Text(plant.name)
-                            .font(.largeTitle)
-                            .bold()
-                            .padding(.horizontal)
-                            .matchedGeometryEffect(id: "plant-name-\(plant.id)", in: namespace)
-
-                        // Last Watered
-                        if let last = plant.lastWatered {
-                            HStack(spacing: 8) {
-                                Image(systemName: "drop.fill")
-                                    .foregroundColor(.blue)
-                                Text("Last watered: \(last)")
-                                    .font(.subheadline)
-                            }
-                            .padding(.horizontal)
+        ZStack {
+            LinearGradient(
+                gradient: Gradient(colors: [Color.green.opacity(0.2), .white]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .matchedGeometryEffect(id: "plant-\(plant.id)-bg", in: namespace)
+            .ignoresSafeArea()
+               
+            VStack(alignment: .leading) {
+                ZStack(alignment: .topLeading) {
+                    Image("plant-pot") // Replace with actual image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .matchedGeometryEffect(id: "plant-\(plant.id)-image", in: namespace,  isSource: true)
+                        .frame(height: 240)
+                        .frame(maxWidth: .infinity)
+                        .clipped()
+                        .cornerRadius(0)
+                        .ignoresSafeArea()
+                    Button("Back") {
+                        withAnimation {
+                            discard()
                         }
-
-                        // Attributes
-                        VStack(alignment: .leading, spacing: 8) {
-                            AttributeView(label: "Location", value: plant.location.rawValue)
-                            AttributeView(label: "Light", value: plant.light)
-                            AttributeView(label: "Weather", value: plant.weatherType.rawValue)
-                        }
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.white)
-                                .matchedGeometryEffect(id: "background-\(plant.id)", in: namespace)
-                                
-                        )
-                        .cornerRadius(12)
-                        .padding(.horizontal)
                     }
+                    .padding()
+               
                 }
-                .navigationTitle(plant.name)
+                
+                VStack {
+                    Text("Hey")
+                        .matchedGeometryEffect(id: "plant-\(plant.id)-text", in: namespace)
+                        .foregroundColor(.black)
+                        .font(.title)
+                    Spacer()
+                }
+                .padding()
                 
             }
-        
+
+           
+        }
     }
 }
 
 #Preview {
     @Previewable @Namespace var previewNamespace
     NavigationView {
-        PlantDetailsView(
+        PlantDetailView(
             plant: PlantModel(
                 id: "1234",
                 name: "Putica",
@@ -91,7 +73,8 @@ struct PlantDetailsView: View {
                 wateringIntervalHours: 24,
                 user: "123123123"
             ),
-            namespace: previewNamespace
+            namespace: previewNamespace,
+            discard: {}
         )
 
     }

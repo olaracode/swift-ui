@@ -18,56 +18,50 @@ struct HomeView: View {
     @State private var selectedPlant: PlantModel?
     var body: some View {
         ZStack{
-            VStack {
-                HStack {
-                    Text("My garden")
-                        .font(.title)
-                        .bold()
-                        .foregroundColor(Color.appBackground)
-                    Spacer()
-                    Button{
-                       showingAddPlantSheet = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                    .padding(12)
-                    .background(Color.appBackground.opacity(0.8))
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
-                    .shadow(radius: 3)
+            if let selectedPlant {
+                PlantDetailView(plant: selectedPlant, namespace: plantNamespace, discard: discard)
+            } else {
+                VStack {
+                    HStack {
+                        Text("My garden")
+                            .font(.title)
+                            .bold()
+                            .foregroundColor(Color.appBackground)
+                        Spacer()
+                        Button{
+                           showingAddPlantSheet = true
+                        } label: {
+                            Image(systemName: "plus")
+                        }
+                        .padding(12)
+                        .background(Color.appBackground.opacity(0.8))
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                        .shadow(radius: 3)
 
-     
+         
+                        
+                    }
+                    ScrollView{
                     
-                }
-                ScrollView{
-                
-                    LazyVStack(alignment: .leading) {
-                        ForEach(plantManager.plants) { plant in
-                            HomeIndoorPlantView(plant: plant, namespace: plantNamespace)
-                                .onTapGesture {
-                                    withAnimation {
-                                        self.selectedPlant = plant
-                                        self.showDetails = true
-                                    }
+                        LazyVStack(alignment: .leading) {
+                            if plantManager.plants.isEmpty {
+                                Text("No plants")
+                            }else {
+                                ForEach(plantManager.plants) { plant in
+                                    PlantCardView(plant: plant, namespace: plantNamespace)
+                                        .onTapGesture {
+                                            withAnimation{
+                                                show(plant: plant)
+                                            }
+                                        }
                                 }
+                            }
                         }
                     }
                 }
-            }
-            .padding()
-            if let selectedPlant {
-              
-               PlantDetailsView(plant: selectedPlant, namespace: plantNamespace)
-                   .zIndex(1)
-                   .onTapGesture {
-                       withAnimation {
-                           self.selectedPlant = nil
-                       }
-                       
-                   }
-                  
-                   
-                   
+                .opacity(selectedPlant != nil ? 0 : 1)
+                .padding()
             }
         }
         .sheet(isPresented: $showingAddPlantSheet){
@@ -83,6 +77,16 @@ struct HomeView: View {
         } catch {
             print("Error fetching plants: \(error)")
         }
+    }
+    
+    func discard(){
+        showDetails.toggle()
+        selectedPlant = nil
+    }
+    func show(plant: PlantModel){
+        print("Showing: \(plant.name)")
+        selectedPlant = plant
+        showDetails.toggle()
     }
 
 }
