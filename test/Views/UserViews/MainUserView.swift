@@ -13,11 +13,18 @@ struct MainUserView: View {
     var body: some View {
         TabView {
             HomeView()
+                .tabItem{
+                    Label("Home", systemImage: "house")
+                }
+            PlantListView()
                 .tabItem {
                     Label("Plants", systemImage: "leaf")
                 }
             
-            
+            Text("Reminders")
+                .tabItem {
+                    Label("Reminders", systemImage: "bell")
+                }
             
             ProfileView()
                 .tabItem {
