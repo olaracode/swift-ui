@@ -86,15 +86,18 @@ struct RegisterView: View {
         do {
             let body = RegisterBody(email: email, password: password, name: name)
             let response = try await Api.register(body: body)
-            auth.login(
-                withToken: response.token,
-                user: User(
-                    email: response.email,
-                    name: response.name,
-                    id: response._id
-                )
-            )
             dismiss()
+            withAnimation {
+                auth.login(
+                    withToken: response.token,
+                    user: User(
+                        email: response.email,
+                        name: response.name,
+                        id: response._id
+                    )
+                )
+            }
+            
         }catch {
             errorMsg.show(msg: "All fields are required")
         }

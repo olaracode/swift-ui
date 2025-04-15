@@ -8,11 +8,10 @@
 import SwiftUI
 
 struct LoginView: View {
-    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var auth: AuthManager
     
     let toggleRegister: () -> Void // Prop
-    
+    let dismiss: () -> Void
     @State var email: String = ""
     @State var password: String = ""
     @State var rememberMe: Bool = false
@@ -89,16 +88,21 @@ struct LoginView: View {
         do {
             let body = LoginBody(email: email, password: password)
             let response = try await Api.login(loginBody: body)
-            
-            auth.login(
-                withToken: response.token,
-                user: User(
-                    email: response.email,
-                    name: response.name,
-                    id: response._id
-                )
-            )
             dismiss()
+            try? await Task.sleep(nanoseconds: 200_000_000) // 0.5 seconds
+
+            withAnimation {
+                auth.login(
+                    withToken: response.token,
+                    user: User(
+                        email: response.email,
+                        name: response.name,
+                        id: response._id
+                    )
+                )
+            }
+         
+        
             
         }
         catch AuthRequestError.invalidEmailOrPassword {
@@ -116,5 +120,5 @@ struct LoginView: View {
 
 
 #Preview {
-    LoginView(toggleRegister: {})
+    LoginView(toggleRegister: {}, dismiss: {})
 }
