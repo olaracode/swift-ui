@@ -58,14 +58,45 @@ extension Fetch {
     }
     
     /// Sends a PUT request with a payload and decodes the response
-    func put<T: Codable>(
+    func put<T: Codable, U: Codable>(
         endpoint: String,
         payload: T,
         token: String? = nil
-    ) async throws -> T{
+    ) async throws -> U{
         let url = try getUrl(endpoint: endpoint)
-        let request = try createRequestWithBody(url: url, payload: payload, method: "PUT", token: token)
+        let method = "PUT"
+        let request = try createRequestWithBody(
+            url: url,
+            payload: payload,
+            method: method,
+            token: token
+        )
+      
+         
         
+        let (data, response) = try await URLSession.shared.data(for: request)
+        try processResponse(response: response)
+        
+        do {
+            return try jsonDecoder(data: data)
+        } catch {
+            print("Decoding error", error)
+            throw ApiError.invalidData
+        }
+        
+    }
+    func put<U: Codable>(
+        endpoint: String,
+        token: String? = nil
+    ) async throws -> U{
+        let url = try getUrl(endpoint: endpoint)
+        let method = "PUT"
+        let request = try createRequest(
+            url: url,
+            method: method,
+            token: token
+        )
+
         let (data, response) = try await URLSession.shared.data(for: request)
         try processResponse(response: response)
         
