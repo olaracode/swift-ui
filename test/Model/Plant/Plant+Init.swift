@@ -18,6 +18,12 @@ extension PlantModel {
         self.name = response.name
         self.wateringIntervalHours = response.wateringIntervalHours
         self.light = response.light
+        
+        if let careNote = response.careNote {
+            self.careNote = careNote
+        } else {
+            self.careNote = nil
+        }
        
         /// Creates a relative date from a Stringified Date
         /// response.lastWatered: 2024-12-30T16:01:10.000Z
