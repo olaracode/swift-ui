@@ -2,98 +2,90 @@
 //  HomeView.swift
 //  test
 //
-//  Created by Octavio Lara on 07/04/2025.
+//  Created by Octavio Lara on 13/04/2025.
 //
 
 import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var plantManager: PlantManager
-    @EnvironmentObject var auth: AuthManager
-    
-    @Namespace var plantNamespace
-    
-    @State private var showingAddPlantSheet = false
-    @State private var showDetails = false
-    @State private var selectedPlant: PlantModel?
     var body: some View {
-        ZStack{
-            if let selectedPlant {
-                PlantDetailView(plant: selectedPlant, namespace: plantNamespace, discard: discard)
-            } else {
-                VStack {
-                    HStack {
-                        Text("My garden")
-                            .font(.title)
-                            .bold()
-                            .foregroundColor(Color.appBackground)
-                        Spacer()
-                        Button{
-                           showingAddPlantSheet = true
-                        } label: {
-                            Image(systemName: "plus")
-                        }
-                        .padding(12)
-                        .background(Color.appBackground.opacity(0.8))
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                        .shadow(radius: 3)
+        NavigationStack{
+            ScrollView {
+                VStack(alignment: .leading, spacing: 10) {
+                    
+                    // Header
+                    Header()
 
-         
+                    // Featured Plant Image
+                    Image("fiddle-leaf-fig")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .cornerRadius(20)
+                        .frame(height: 300)
+                        .padding(.horizontal)
+
+                    // My Plants Section
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("My Plants")
+                            .font(.title2).bold()
+                            .padding(.horizontal)
+
+                        
+                            if plantManager.plants.isEmpty {
+                                Text("No plants, add a new one!")
+                            } else {
+                                ScrollView(.horizontal) {
+                                    
+                                    LazyHStack{
+                                        ForEach(plantManager.plants){ plant in
+                                            NavigationLink(destination: PlantDetails(plant: plant)){
+                                                HomePlantCardView(plant: plant)
+                                            }
+                                            .buttonStyle(PlainButtonStyle())
+                                           
+                                              
+                                        }
+                                    }
+                                    .scrollTargetLayout()
+                                }
+                                .contentMargins(.horizontal, 20)
+                                .scrollTargetBehavior(.paging)
+                            }
                         
                     }
-                    ScrollView{
-                    
-                        LazyVStack(alignment: .leading) {
-                            if plantManager.plants.isEmpty {
-                                Text("No plants")
-                            }else {
-                                ForEach(plantManager.plants) { plant in
-                                    PlantCardView(plant: plant, namespace: plantNamespace)
-                                        .onTapGesture {
-                                            withAnimation{
-                                                show(plant: plant)
-                                            }
-                                        }
-                                }
-                            }
+
+                    // Tips & Tricks Section
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Tips & Tricks")
+                            .font(.title2).bold()
+                            .padding(.horizontal)
+
+                        HStack {
+                            Image("monsera-leaf")
+                                .resizable()
+                                .frame(width: 90, height: 90)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                            Text("Watering \n Guide")
+                                .font(.title)
+                            Spacer()
                         }
+                        .padding()
+                        .background(Color.green.opacity(0.2))
+                        .cornerRadius(16)
+                        .padding(.horizontal)
                     }
                 }
-                .opacity(selectedPlant != nil ? 0 : 1)
-                .padding()
+                .padding(.top)
             }
-        }
-        .sheet(isPresented: $showingAddPlantSheet){
-            AddPlantView()
-        }
-    }
-    func fetchPlants() async {
-        do {
-            if let token = auth.token {
-                try await plantManager.getPlants(token: token)
-
-            }
-        } catch {
-            print("Error fetching plants: \(error)")
+            .background(Color(.systemGray6))
+            .navigationBarHidden(true)
         }
     }
-    
-    func discard(){
-        showDetails.toggle()
-        selectedPlant = nil
-    }
-    func show(plant: PlantModel){
-        print("Showing: \(plant.name)")
-        selectedPlant = plant
-        showDetails.toggle()
-    }
-
 }
 
 #Preview {
-
     HomeView()
         .environmentObject(PlantManager())
-        .environmentObject(AuthManager())
 }
