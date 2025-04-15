@@ -74,18 +74,8 @@ struct PlantCardView: View {
 
 #Preview {
     @Previewable @Namespace var previewNamespace
-    PlantCardView(plant: PlantModel(
-        id: "1234",
-        name: "Putica",
-        light: "Mucha",
-        weatherType: .dry,
-        status: .inTreatment,
-        location: .indoor,
-        lastWatered: "Two hours ago",
-        nextWatering: Date.now,
-        wateringIntervalHours: 24,
-        user: "123123123"
-    ),
-    namespace: previewNamespace
+    PlantCardView(
+        plant: Placeholders.plant,
+        namespace: previewNamespace
     )
 }

@@ -41,38 +41,70 @@ struct PlantDetailView: View {
                
                 }
                 
-                VStack {
-                    Text("Hey")
-                        .matchedGeometryEffect(id: "plant-\(plant.id)-text", in: namespace)
-                        .foregroundColor(.black)
-                        .font(.title)
-                    Spacer()
-                }
+                ScrollView {
+                            VStack(alignment: .leading, spacing: 24) {
+                                // Title
+                                Text(plant.name)
+                                    .font(.largeTitle)
+                                    .fontWeight(.bold)
+                                    .padding(.bottom, 8)
+
+                                // Info Card
+                                VStack(spacing: 16) {
+                                    InfoRow(title: "Light level", value: plant.light)
+                                    InfoRow(title: "Location", value: plant.location.label)
+                                    InfoRow(title: "Weather Type", value: plant.weatherType.label)
+                                    InfoRow(title: "Status", value: plant.status.label)
+
+                                    CountdownView(targetDate: plant.nextWatering ?? Date.now)
+
+                                    InfoRow(
+                                        title: "Water every...",
+                                        value: "\(plant.wateringIntervalHours) hours"
+                                    )
+                                }
+                                .padding()
+                                .background(Color(.secondarySystemBackground))
+                                .cornerRadius(12)
+                            }
+                            .padding()
+                        }
                 .padding()
                 
             }
+            Spacer()
 
            
         }
     }
+    func formattedDate(_ date: Date) -> String {
+           let formatter = DateFormatter()
+           formatter.dateStyle = .medium
+           formatter.timeStyle = .short
+           return formatter.string(from: date)
+       }
 }
+struct InfoRow: View {
+    let title: String
+    let value: String
+
+    var body: some View {
+        HStack {
+            Text(title)
+                .foregroundColor(.gray)
+            Spacer()
+            Text(value)
+                .fontWeight(.medium)
+        }
+    }
+}
+
 
 #Preview {
     @Previewable @Namespace var previewNamespace
     NavigationView {
         PlantDetailView(
-            plant: PlantModel(
-                id: "1234",
-                name: "Putica",
-                light: "Mucha",
-                weatherType: .dry,
-                status: .inTreatment,
-                location: .indoor,
-                lastWatered: "Two hours ago",
-                nextWatering: Date.now,
-                wateringIntervalHours: 24,
-                user: "123123123"
-            ),
+            plant: Placeholders.plant,
             namespace: previewNamespace,
             discard: {}
         )

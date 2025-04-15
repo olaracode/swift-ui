@@ -13,8 +13,14 @@ struct ProfileView: View {
         if auth.user == nil {
             Text("Unauthenticated")
         } else {
-            Text(auth.user?.name ?? "")
-                .font(.headline)
+            VStack {
+                Text(auth.user?.name ?? "")
+                    .font(.headline)
+                Button("Logout"){
+                    auth.logout()
+                }
+            }
+        
         }
         
     }

@@ -73,7 +73,7 @@ struct InitialView: View {
         .sheet(item: $activeSheet) { sheet in
                switch sheet {
                case .login:
-                   LoginView(toggleRegister: toggleRegister)
+                   LoginView(toggleRegister: toggleRegister, dismiss: dismiss)
                        .presentationDetents([.medium])
                case .register:
                    RegisterView(toggleLogin: toggleLogin) // Assuming you have a RegisterView
@@ -87,6 +87,10 @@ struct InitialView: View {
     }
     func toggleLogin(){
         activeSheet = .login
+        return
+    }
+    func dismiss(){
+        activeSheet = nil
         return
     }
 }
