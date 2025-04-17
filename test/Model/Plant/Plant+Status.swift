@@ -20,6 +20,14 @@ enum PlantStatus: String, CaseIterable, Codable, Identifiable, Hashable {
         case .inTreatment: return "In Treatment"
         }
     }
+    
+    var emoji: String {
+        switch self {
+        case .healthy: return "🌿"
+        case .sick: return "🍂"
+        case .inTreatment: return "❤️‍🩹"
+        }
+    }
 
     var color: Color {
         switch self {
