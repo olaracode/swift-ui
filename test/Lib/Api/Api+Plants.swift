@@ -7,19 +7,16 @@
 
 import Foundation
 
-
-
 extension Api {
     private struct Endpoints {
-        static let plants = "/v1/plants"
-        static let water = "\(Endpoints.plants)/water"
-        static let cardNote = "\(Endpoints.plants)/card-note"
-        
+        static let base = "/v1/plants"
+        static let water = "\(Endpoints.base)/water"
+        static let cardNote = "\(Endpoints.base)/card-note"
     }
     
     static func getPlants(token: String) async throws -> [PlantModel] {
         let response: [PlantResponse] = try await fetch.get(
-            endpoint: Endpoints.plants, token: token
+            endpoint: Endpoints.base, token: token
         )
         return response.map {PlantModel(from: $0)}
     }
@@ -29,7 +26,7 @@ extension Api {
         token: String
     ) async throws -> PlantModel {
         let response: PlantResponse = try await fetch.post(
-            endpoint: Endpoints.plants,
+            endpoint: Endpoints.base,
             payload: payload,
             token: token
         )
@@ -41,7 +38,7 @@ extension Api {
         token: String
     ) async throws -> PlantModel {
         let response: PlantResponse = try await fetch.put(
-            endpoint: "\(Endpoints.plants)/\(plantId)",
+            endpoint: "\(Endpoints.water)/\(plantId)",
             token: token
         )
         return PlantModel(from: response)
@@ -60,34 +57,18 @@ extension Api {
             
             return PlantModel(from: response)
     }
+    
+    static func deletePlant(
+        plantId: String,
+        token: String
+    ) async throws -> PlantModel {
+        let response: PlantResponse = try await fetch.delete(
+            endpoint: "\(Endpoints.base)/\(plantId)",
+            token: token
+        )
+        return PlantModel(from: response)
+    }
 }
 
 
 
-struct PlantResponse: Codable {
-    let _id: String
-    let name: String
-    let light: String
-    let weatherType: String
-    let status: String
-    let location: String
-    let lastWatered: String
-    let user: String
-    let nextWatering: String
-    let wateringIntervalHours: Int
-    let careNote: String?
-}
-
-struct PlantBody: Codable {
-    let name: String
-    let weatherType: String
-    let light: String
-    let status: String
-    let location: String
-    let lastWatered: String
-    let wateringIntervalHours: Int
-}
-
-struct CareNoteBody: Codable {
-    let careNote: String
-}
