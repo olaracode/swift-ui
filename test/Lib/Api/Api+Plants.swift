@@ -61,12 +61,11 @@ extension Api {
     static func deletePlant(
         plantId: String,
         token: String
-    ) async throws -> PlantModel {
-        let response: PlantResponse = try await fetch.delete(
+    ) async throws {
+       try await fetch.delete(
             endpoint: "\(Endpoints.base)/\(plantId)",
             token: token
         )
-        return PlantModel(from: response)
     }
 }
 
