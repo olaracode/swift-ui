@@ -27,34 +27,40 @@ struct HomeView: View {
 
                     // My Plants Section
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("My Plants")
-                            .font(.title2).bold()
-                            .padding(.horizontal)
+                        HStack(spacing: 3) {
+                            Text("Plants to water")
+                                .font(.title2).bold()
+                            Text("(\(plantManager.plantsNeedingWater.count))")
+                        }
+                        .padding(.horizontal)
+                  
 
                         
-                            if plantManager.plants.isEmpty {
-                                Text("No plants, add a new one!")
-                            } else {
-                                ScrollView(.horizontal) {
-                                    
-                                    LazyHStack{
-                                        ForEach(plantManager.plants){ plant in
-                                            NavigationLink(destination: PlantDetails(plant: plant)){
-                                                HomePlantCardView(plant: plant)
-                                            }
-                                            .buttonStyle(PlainButtonStyle())
-                                           
-                                              
+                        if plantManager.plants.isEmpty {
+                            Text("No plants, add a new one!")
+                                .padding()
+                        }
+                        else if plantManager.plantsNeedingWater.isEmpty {
+                            Text("All your plants are watered 🎉")
+                                .padding()
+                        }
+                        else {
+                            ScrollView(.horizontal) {
+                                LazyHStack{
+                                    ForEach(plantManager.plantsNeedingWater){ plant in
+                                        NavigationLink(destination: PlantDetails(plant: plant)){
+                                            HomePlantCardView(plant: plant)
                                         }
+                                        .buttonStyle(PlainButtonStyle())
                                     }
-                                    .scrollTargetLayout()
                                 }
-                                .contentMargins(.horizontal, 20)
-                                .scrollTargetBehavior(.paging)
+                                .scrollTargetLayout()
                             }
+                            .contentMargins(.horizontal, 20)
+                            .scrollTargetBehavior(.paging)
+                        }
                         
                     }
-
                     // Tips & Tricks Section
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Tips & Tricks")
