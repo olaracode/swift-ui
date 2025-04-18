@@ -17,56 +17,57 @@ struct PlantListView: View {
     @State private var showDetails = false
     @State private var selectedPlant: PlantModel?
     var body: some View {
-        ZStack{
-            if let selectedPlant {
-                PlantDetailView(plant: selectedPlant, namespace: plantNamespace, discard: discard)
-            } else {
-                VStack {
-                    HStack {
-                        Text("My garden")
-                            .font(.title)
-                            .bold()
-                            .foregroundColor(Color.appBackground)
-                        Spacer()
-                        Button{
-                           showingAddPlantSheet = true
-                        } label: {
-                            Image(systemName: "plus")
-                        }
-                        .padding(12)
-                        .background(Color.appBackground.opacity(0.8))
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                        .shadow(radius: 3)
-
-         
-                        
-                    }
-                    ScrollView{
-                    
-                        LazyVStack(alignment: .leading) {
-                            if plantManager.plants.isEmpty {
-                                Text("No plants")
-                            }else {
-                                ForEach(plantManager.plants) { plant in
-                                    PlantCardView(plant: plant, namespace: plantNamespace)
-                                        .onTapGesture {
-                                            withAnimation{
-                                                show(plant: plant)
-                                            }
+     
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 10){
+            
+                    Header()
+                    List {
+                        ForEach(plantManager.plants) { plant in
+                            NavigationLink(destination: PlantDetails(plant: plant)) {
+                                HStack(spacing: 16) {
+                                    Image("philodendron")
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 60, height: 60)
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        HStack {
+                                            Text(plant.name)
+                                                .font(.headline)
+                                            Text(plant.lastWatered ?? "")
+                                                .font(.caption)
                                         }
+                                        HStack {
+                                            Text(plant.location.label)
+                                                .font(.caption)
+                                            Text("\(plant.status.label)\(plant.status.emoji)")
+                                                .font(.caption2)
+                                                .fontWeight(.light)
+                                                .foregroundColor(plant.status.color.opacity(0.8))
+                                        }
+                                       
+                                        
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    
                                 }
+                                .padding(.vertical, 8)
                             }
                         }
-                    }
+                       
                 }
-                .opacity(selectedPlant != nil ? 0 : 1)
-                .padding()
+                    
             }
+            .padding(.top)
+            .background(Color(.systemGray6))
+            .navigationBarHidden(true)
+           
         }
-        .sheet(isPresented: $showingAddPlantSheet){
-            AddPlantView()
-        }
+        
     }
     func fetchPlants() async {
         do {
