@@ -9,10 +9,14 @@ import Foundation
 import SwiftUI
 class PlantManager: ObservableObject {
     @Published var plants: [PlantModel]
+    var plantsNeedingWater: [PlantModel] {
+        plants.filter { $0.needsWatering }
+    }
     init(){
        plants = []
     }
     
+    /// API related methods
     func getPlants(token: String) async throws {
         let apiPlants = try await Api.getPlants(token: token)
         DispatchQueue.main.async {
@@ -36,6 +40,15 @@ class PlantManager: ObservableObject {
                     self.plants[index] = updatedPlant
 
                 }
+            }
+        }
+    }
+    
+    func deletePlant(plantId: String, token: String) async throws {
+        let _ = try await Api.deletePlant(plantId: plantId, token: token)
+        DispatchQueue.main.async {
+            if let index = self.plants.firstIndex(where: { $0.id == plantId }){
+                self.plants.remove(at: index)
             }
         }
     }
