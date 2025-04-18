@@ -8,9 +8,13 @@
 import SwiftUI
 
 struct PlantDetails: View {
+    @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var plantManager: PlantManager
     @EnvironmentObject var authManager: AuthManager
+    @State var isDeleteShown = false
+    
     let plant: PlantModel
+    
     var body: some View {
         NavigationView{
             ScrollView {
@@ -26,12 +30,31 @@ struct PlantDetails: View {
                         .padding(.horizontal)
 
                     // Name & Species
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(plant.name)
-                            .font(.largeTitle).bold()
-                        Text("Ficus lyrata")
-                            .font(.title3)
-                            .foregroundColor(.secondary)
+                    HStack{
+                        VStack(alignment: .leading, spacing: 4) {
+                        
+                            Text(plant.name)
+                                .font(.largeTitle).bold()
+                            Text("Ficus lyrata")
+                                .font(.title3)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                        Button("Delete", role: .destructive){
+                            isDeleteShown.toggle()
+                        }
+                        .bold()
+                        .confirmationDialog("Choose an action", isPresented: $isDeleteShown, titleVisibility: .visible) {
+                                  Button("Confirm", role: .destructive) {
+                                      Task {
+                                          await deletePlant()
+                                                                                }
+                                     
+                                  }
+                                  Button("Cancel", role: .cancel) {}
+                              }
+                        
+                        
                     }
                     .padding(.horizontal)
 
@@ -113,6 +136,25 @@ struct PlantDetails: View {
        
     }
     
+    func deletePlant() async {
+        do {
+            if let token = authManager.token {
+                try await plantManager.deletePlant(
+                    plantId: plant.id,
+                    token: token
+                )
+                
+                await MainActor.run {
+                    print("Hey")
+                    dismiss()
+                }
+            }
+        }
+        catch {
+            print("Error \(error)")
+        }
+    }
+    
     func getWateringPeriodText() -> String {
         if plant.wateringIntervalHours % 24 > 0 {
             return "every \(plant.wateringIntervalHours) hours"
@@ -121,60 +163,6 @@ struct PlantDetails: View {
         return "every \(days) day\(days > 1 ? "s" : "")"
     }
 
-}
-struct CountdownView: View {
-    let targetDate: Date
-    @State private var now = Date()
-    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-
-    var body: some View {
-        Text(displayText)
-            .fontWeight(.light)
-            .onReceive(timer) { _ in
-                now = Date()
-            }
-    }
-
-    var displayText: String {
-        let diff = targetDate.timeIntervalSince(now)
-        
-        if diff > 24 * 60 * 60 {
-            // More than 24 hours: show formatted date
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            return formatter.string(from: targetDate)
-        } else if diff > 0 {
-            // Less than 24 hours: show countdown
-            let hours = Int(diff) / 3600
-            let minutes = (Int(diff) % 3600) / 60
-            let seconds = Int(diff) % 60
-            return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
-        } else {
-            return "Time's up!"
-        }
-    }
-}
-
-struct PlantCareNote: View {
-    var plant: PlantModel
-    var body: some View {
-        NavigationLink(destination: PlantCareNoteView(plant: plant)) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Care Notes")
-                    .font(.headline)
-
-                if plant.careNote == nil {
-                    Text("No care note defined")
-                        .foregroundColor(.gray)
-                } else {
-                    Text(plant.careNote ?? "")
-                        .foregroundColor(.secondary)
-                }
-            }
-            .padding(.horizontal)
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
 }
 
 #Preview {
