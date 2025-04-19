@@ -19,10 +19,14 @@ struct PlantModel: Identifiable, Hashable, Codable {
     let wateringIntervalHours: Int
     let careNote: String?
     let user: String
-    
+    let notificationIdentifier: String?
     var needsWatering: Bool {
         guard let next = nextWatering else { return false }
         return Date() >= next
     }
+    var hasNotification: Bool {
+        return self.notificationIdentifier != nil
+    }
+
 }
 

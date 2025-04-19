@@ -24,6 +24,12 @@ extension PlantModel {
         } else {
             self.careNote = nil
         }
+        
+        if let notificationIdentifier = response.notificationIdentifier {
+            self.notificationIdentifier = notificationIdentifier
+        } else {
+            self.notificationIdentifier = nil
+        }
        
         /// Creates a relative date from a Stringified Date
         /// response.lastWatered: 2024-12-30T16:01:10.000Z

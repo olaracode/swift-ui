@@ -25,6 +25,7 @@ struct Placeholders {
         nextWatering: Date.now,
         wateringIntervalHours: 24,
         careNote: "Care note testa",
-        user: "123123123"
+        user: "123123123",
+        notificationIdentifier: nil
     )
 }
