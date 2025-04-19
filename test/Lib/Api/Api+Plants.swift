@@ -12,6 +12,7 @@ extension Api {
         static let base = "/v1/plants"
         static let water = "\(Endpoints.base)/water"
         static let cardNote = "\(Endpoints.base)/card-note"
+        static let notification = "\(Endpoints.base)/notification"
     }
     
     static func getPlants(token: String) async throws -> [PlantModel] {
@@ -66,6 +67,15 @@ extension Api {
             endpoint: "\(Endpoints.base)/\(plantId)",
             token: token
         )
+    }
+    
+    static func createNotification(plantId: String, payload: PlantNotification, token: String) async throws -> PlantModel {
+        let response: PlantResponse = try await fetch.put(
+            endpoint: "\(Endpoints.notification)/\(plantId)",
+            payload: payload,
+            token: token
+        )
+        return PlantModel(from: response)
     }
 }
 

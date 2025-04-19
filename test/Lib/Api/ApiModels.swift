@@ -77,8 +77,13 @@ struct PlantResponse: Codable {
     let nextWatering: String
     let wateringIntervalHours: Int
     let careNote: String?
+    let notificationIdentifier: String?
 }
 
 struct CareNoteBody: Codable {
     let careNote: String
+}
+
+struct PlantNotification: Codable {
+    let notificationIdentifier: String
 }
