@@ -9,9 +9,13 @@ import SwiftUI
 
 struct PlantDetails: View {
     @Environment(\.dismiss) private var dismiss
+    
     @EnvironmentObject var plantManager: PlantManager
     @EnvironmentObject var authManager: AuthManager
+    
     @State var isDeleteShown = false
+    @State var hasNotification = false
+    @State var notificationError = ErrorMessage()
     
     let plant: PlantModel
     
@@ -90,7 +94,22 @@ struct PlantDetails: View {
                             }
                            
                         }
-
+                        Divider()
+                            .padding(.vertical)
+                        HStack {
+                            
+                            Toggle(isOn: $hasNotification){
+                                Text("Vibrate on Ring")
+                            }
+                            .onChange(of: hasNotification) {
+                                Task {
+                                    print("Has notification\(hasNotification)")
+                                    if hasNotification {
+                                        await createNotification()
+                                    }
+                                }
+                            }
+                        }
                         Button(action: {
                                 Task {
                                     await waterPlant()
@@ -121,6 +140,9 @@ struct PlantDetails: View {
         }
         .navigationTitle(plant.name)
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            hasNotification = plant.hasNotification
+        }
         
     }
     func waterPlant() async {
@@ -152,6 +174,23 @@ struct PlantDetails: View {
         }
         catch {
             print("Error \(error)")
+        }
+    }
+    
+    func createNotification() async {
+        do {
+            if let token = authManager.token {
+                let newNotification = PlantNotification(notificationIdentifier: "plant:\(plant.name):\(plant.id)")
+                try await plantManager.createNotification(
+                    plantId: plant.id,
+                    notification: newNotification,
+                    token: token
+                )
+            }
+        }
+        catch {
+            notificationError.show(msg: "There has been an error with this notification")
+            hasNotification = false
         }
     }
     

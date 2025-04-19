@@ -72,6 +72,20 @@ class PlantManager: ObservableObject {
         }
     }
     
+    func createNotification(plantId: String, notification: PlantNotification, token: String) async throws {
+        let updatedPlant = try await Api.createNotification(plantId: plantId, payload: notification, token: token)
+        DispatchQueue.main.async {
+            if let index = self.plants.firstIndex(where: { $0.id == plantId }){
+                withAnimation {
+                    self.plants[index] = updatedPlant
+                    if let nextWatering = updatedPlant.nextWatering {
+                        Notifications.scheduleNotificatiuon(for: updatedPlant.name, at: nextWatering, identifier: notification.notificationIdentifier)
+                    }
+                }
+            }
+        }
+    }
+    
     func clean(){
         plants = []
     }
