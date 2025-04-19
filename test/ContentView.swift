@@ -24,6 +24,7 @@ struct ContentView: View {
             }
         }
         .onAppear {
+            Notifications.requestPermission()
             Task {
                 if let _ = auth.token {
                     auth.load()
