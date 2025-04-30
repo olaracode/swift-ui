@@ -77,6 +77,17 @@ extension Api {
         )
         return PlantModel(from: response)
     }
+    
+    static func deleteNotification(plantId: String, token: String) async throws -> PlantModel {
+        let response: PlantResponse = try await fetch.delete(
+            endpoint: fetch.endpointWithId(
+                endpoint: Endpoints.notification,
+                id: plantId
+            ),
+            token: token
+        )
+        return PlantModel(from: response)
+    }
 }
 
 
