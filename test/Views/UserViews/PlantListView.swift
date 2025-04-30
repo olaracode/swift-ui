@@ -20,7 +20,6 @@ struct PlantListView: View {
      
         NavigationStack {
             VStack(alignment: .leading, spacing: 10){
-            
                     Header()
                     List {
                         ForEach(plantManager.plants) { plant in
@@ -47,13 +46,8 @@ struct PlantListView: View {
                                                 .fontWeight(.light)
                                                 .foregroundColor(plant.status.color.opacity(0.8))
                                         }
-                                       
-                                        
                                     }
-                                    
                                     Spacer()
-                                    
-                                    
                                 }
                                 .padding(.vertical, 8)
                             }

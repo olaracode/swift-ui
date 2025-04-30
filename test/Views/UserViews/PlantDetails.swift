@@ -106,6 +106,8 @@ struct PlantDetails: View {
                                     print("Has notification\(hasNotification)")
                                     if hasNotification {
                                         await createNotification()
+                                    } else {
+                                        await deleteNotification()
                                     }
                                 }
                             }
@@ -191,6 +193,23 @@ struct PlantDetails: View {
         catch {
             notificationError.show(msg: "There has been an error with this notification")
             hasNotification = false
+        }
+    }
+    
+    func deleteNotification() async {
+        do {
+            if let token = authManager.token {
+                let newNotification = PlantNotification(notificationIdentifier: "plant:\(plant.name):\(plant.id)")
+                try await plantManager.deleteNotification(
+                    plantId: plant.id,
+                    notification: newNotification,
+                    token: token
+                )
+            }
+        } catch {
+            notificationError.show(msg: "There has been an error with this notification")
+            hasNotification = true
+
         }
     }
     
