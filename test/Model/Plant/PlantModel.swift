@@ -25,7 +25,7 @@ struct PlantModel: Identifiable, Hashable, Codable {
         return Date() >= next
     }
     var hasNotification: Bool {
-        return self.notificationIdentifier != nil
+        return self.notificationIdentifier != nil && self.notificationIdentifier != ""
     }
 
 }
