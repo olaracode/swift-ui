@@ -11,6 +11,7 @@ Index:
 - [Expense Tracker SwiftData](#swift-data-expense-tracker)
 - [Github Api Profile Demo](#github-api-profile-demo)
 - [Todo List with API](#todo-list-with-api)
+- [Plant management]()
 
 ## UI Card
 
@@ -63,3 +64,12 @@ A simple App that fetches the data of a github api user profile and displays it.
 Base on the [previous todo list](https://github.com/olaracode/swift-ui/tree/project/todo-list?tab=readme-ov-file#todo-list) this project tackles the CRUD operations working with an API and swift data
 
 ![Api/Todo app demo](./docs/todo-api-demo.gif)
+
+## Plant Manager
+
+> [Code](https://github.com/olaracode/swift-ui/tree/auth-app?tab=readme-ov-file#swift--swiftui)
+> Api used: [plant-manager-rest](https://github.com/olaracode/plant-manager-rest)
+
+Plant management app that uses a Token base authentication system
+
+![Plant Manager Demo](./docs/plant-manager.gif)
