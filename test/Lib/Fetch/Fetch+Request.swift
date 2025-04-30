@@ -11,10 +11,11 @@ import Foundation
 extension Fetch {
     /// Builds a basic URLRequest with optional token and HTTP method
     func createRequest(
-        url: URL,
+        endpoint: String,
         method: String? = "GET",
         token: String? = nil
     ) throws -> URLRequest{
+        let url = try getUrl(endpoint: endpoint)
         var request = URLRequest(url: url)
         request.httpMethod = method
         
@@ -30,12 +31,12 @@ extension Fetch {
     
     /// Builds a request with a JSON payload body
     func createRequestWithBody<T: Codable>(
-        url: URL,
+        endpoint: String,
         payload: T?,
         method: String? = "POST",
         token: String? = nil
     ) throws -> URLRequest {
-        var request = try createRequest(url: url, method: method, token: token)
+        var request = try createRequest(endpoint: endpoint, method: method, token: token)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONEncoder().encode(payload)
         return request

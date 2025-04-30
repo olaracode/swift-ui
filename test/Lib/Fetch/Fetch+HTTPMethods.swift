@@ -9,19 +9,29 @@ import Foundation
 
 /// GET | POST | PUT | DELETE methods
 extension Fetch {
-    func get<T: Codable>(
-        endpoint: String,
-        token: String? = nil
-    ) async throws -> T {
-        let url = try getUrl(endpoint: endpoint)
-        let request = try createRequest(url: url, token: token)
-        let (data, response) = try await URLSession.shared.data(for: request)
+    func request<T: Codable>(req: URLRequest) async throws -> T {
+        let (data, response) = try await URLSession.shared.data(for: req)
         try processResponse(response: response)
         do {
             return try jsonDecoder(data: data)
         } catch {
+            print("Decoding error", error)
             throw ApiError.invalidData
         }
+    }
+    func get<T: Codable>(
+        endpoint: String,
+        token: String? = nil
+    ) async throws -> T {
+        let req = try createRequest(endpoint: endpoint, token: token)
+        return try await request(req: req)
+//        let (data, response) = try await URLSession.shared.data(for: request)
+//        try processResponse(response: response)
+//        do {
+//            return try jsonDecoder(data: data)
+//        } catch {
+//            throw ApiError.invalidData
+//        }
     }
     
     /// Sends a POST request with a payload and decodes the response
@@ -30,14 +40,14 @@ extension Fetch {
         payload: T,
         token: String? = nil)
     async throws -> U {
-        let url = try getUrl(endpoint: endpoint)
-        let request = try createRequestWithBody(url: url, payload: payload, token: token)
+        let req = try createRequestWithBody(endpoint: endpoint, payload: payload, token: token)
         
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
+        let (data, response) = try await URLSession.shared.data(for: req)
+        print(data)
         try processResponse(response: response)
         
         do {
+            print("decoding")
             return try jsonDecoder(data: data)
         } catch {
             print("Decoding error", error)
@@ -50,11 +60,20 @@ extension Fetch {
         endpoint: String,
         token: String? = nil
     ) async throws {
-        let url = try getUrl(endpoint: endpoint)
-        let request = try createRequest(url: url, method: "DELETE", token: token)
+        let request = try createRequest(endpoint: endpoint, method: "DELETE", token: token)
         let (_, response) = try await URLSession.shared.data(for: request)
         try processResponse(response: response)
         
+    }
+
+//    / Sends a delete with a response
+    func delete<T: Codable>(
+        endpoint: String,
+        token: String? = nil
+    ) async throws -> T {
+        let req = try createRequest(endpoint: endpoint, method: "DELETE", token: token)
+        return try await request(req: req)
+//        return data
     }
     
     /// Sends a PUT request with a payload and decodes the response
@@ -63,12 +82,10 @@ extension Fetch {
         payload: T,
         token: String? = nil
     ) async throws -> U{
-        let url = try getUrl(endpoint: endpoint)
-        let method = "PUT"
         let request = try createRequestWithBody(
-            url: url,
+            endpoint: endpoint,
             payload: payload,
-            method: method,
+            method: "PUT",
             token: token
         )
       
@@ -89,11 +106,10 @@ extension Fetch {
         endpoint: String,
         token: String? = nil
     ) async throws -> U{
-        let url = try getUrl(endpoint: endpoint)
-        let method = "PUT"
+        
         let request = try createRequest(
-            url: url,
-            method: method,
+            endpoint: endpoint,
+            method: "PUT",
             token: token
         )
 

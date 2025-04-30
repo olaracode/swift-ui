@@ -14,4 +14,7 @@ extension Fetch {
         }
         return url
     }
+    func endpointWithId(endpoint: String, id: String) -> String {
+        return "\(endpoint)/\(id)"
+    }
 }
