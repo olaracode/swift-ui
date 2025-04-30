@@ -21,7 +21,7 @@ struct MainUserView: View {
                     Label("Plants", systemImage: "leaf")
                 }
             
-            Text("Reminders")
+            ReminderView()
                 .tabItem {
                     Label("Reminders", systemImage: "bell")
                 }
