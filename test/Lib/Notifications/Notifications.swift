@@ -21,7 +21,7 @@ struct Notifications {
                 }
         }
     }
-    static func scheduleNotificatiuon(
+    static func scheduleNotification(
         for plantName: String,
         at date: Date,
         identifier id: String

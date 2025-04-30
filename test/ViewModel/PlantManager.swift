@@ -12,6 +12,9 @@ class PlantManager: ObservableObject {
     var plantsNeedingWater: [PlantModel] {
         plants.filter { $0.needsWatering }
     }
+    var plantsWithNotification: [PlantModel] {
+        plants.filter { $0.hasNotification }
+    }
     init(){
        plants = []
     }
@@ -79,11 +82,23 @@ class PlantManager: ObservableObject {
                 withAnimation {
                     self.plants[index] = updatedPlant
                     if let nextWatering = updatedPlant.nextWatering {
-                        Notifications.scheduleNotificatiuon(for: updatedPlant.name, at: nextWatering, identifier: notification.notificationIdentifier)
+                        Notifications.scheduleNotification(for: updatedPlant.name, at: nextWatering, identifier: notification.notificationIdentifier)
                     }
                 }
             }
         }
+    }
+    func deleteNotification(plantId: String, notification: PlantNotification, token: String) async throws {
+        let updatedPlant = try await Api.deleteNotification(plantId: plantId, token: token)
+        DispatchQueue.main.async {
+            if let index = self.plants.firstIndex(where: { $0.id == plantId }){
+                withAnimation {
+                    self.plants[index] = updatedPlant
+                    Notifications.removeNotification(identifier: notification.notificationIdentifier)
+                }
+            }
+        }
+       
     }
     
     func clean(){
